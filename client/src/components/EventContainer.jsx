@@ -32,10 +32,10 @@ const EventContainer = ({
       }}
     >
       <Typography
-        fontSize='1.4rem'
-        fontWeight='bold'
-        variant='h2'
-        p='1rem 0rem 1rem 0rem'
+        fontSize="1.4rem"
+        fontWeight="bold"
+        variant="h2"
+        p="1rem 0rem 1rem 0rem"
         color={theme.palette.secondary.main}
       >
         {title}
@@ -77,7 +77,8 @@ const EventContainer = ({
                   moment(new Date(a.startDate)) - moment(new Date(b.startDate))
                 );
               })
-              .map((event) => {
+              .map((event, index) => {
+                console.log("event==>", event);
                 return (
                   <EventCard isPast={isPast} key={event._id} event={event} />
                 );
@@ -93,16 +94,16 @@ const EventContainer = ({
             >
               <CardContent>
                 <Box
-                  display='flex'
-                  justifyContent='center'
-                  alignItems='center'
-                  flexDirection='row'
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  flexDirection="row"
                 >
                   <Typography
                     fontSize={isNonMobile ? "1.8rem" : "1.1rem"}
-                    textDecoration='underline'
-                    fontWeight='bold'
-                    p='1rem 0rem 1rem 0rem'
+                    textDecoration="underline"
+                    fontWeight="bold"
+                    p="1rem 0rem 1rem 0rem"
                     color={theme.palette.secondary.main}
                   >
                     {isPast ? "NO PAST EVENTS!" : "NO UPCOMING EVENTS!"}

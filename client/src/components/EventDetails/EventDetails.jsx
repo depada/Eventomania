@@ -24,6 +24,7 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { eventId } = useParams();
+  console.log("eventid==>", eventId);
   const { data: event, isError } = useGetEventQuery({
     eventId,
   });
@@ -38,7 +39,7 @@ const EventDetails = () => {
   return (
     <Box>
       {event ? (
-        <Grid width='90%' margin='auto' container mt={2}>
+        <Grid width="90%" margin="auto" container mt={2}>
           <Grid
             sx={{ marginBottom: "1rem" }}
             item
@@ -49,7 +50,7 @@ const EventDetails = () => {
           >
             <EventHeader
               name={event.name}
-              banner={event.bannerName}
+              banner={event.bannerPath}
               startDate={event.startDate}
               endDate={event.endDate}
               venue={event.venue}
@@ -73,7 +74,7 @@ const EventDetails = () => {
               ) : (
                 <Box
                   sx={{ display: "block", overflow: "auto" }}
-                  marginBottom='1rem'
+                  marginBottom="1rem"
                 >
                   <Box
                     sx={{
@@ -85,12 +86,12 @@ const EventDetails = () => {
                   >
                     <Typography
                       fontSize={isNonMobile ? "1.6rem" : "1.2rem"}
-                      textDecoration='underline'
-                      fontWeight='bold'
-                      p='0.3rem 0rem 1rem 0rem'
-                      color='#d12121'
+                      textDecoration="underline"
+                      fontWeight="bold"
+                      p="0.3rem 0rem 1rem 0rem"
+                      color="#d12121"
                     >
-                      <AnimateText text='EVENT CONCLUDED!' delayValue={0.05} />
+                      <AnimateText text="EVENT CONCLUDED!" delayValue={0.05} />
                     </Typography>
                   </Box>
                 </Box>

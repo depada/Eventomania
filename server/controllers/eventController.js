@@ -7,6 +7,7 @@ import User from "../models/User.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { generateCertificate } from "../utils/generateCertificate.js";
 import { validationResult } from "express-validator";
+import { eventsData } from "../dummyData.js";
 
 //@desc     create a new Event
 //@route    POST /event/createEvent
@@ -136,9 +137,12 @@ export const uploadPhotos = async (req, res) => {
 //@route    POST /events/getEvent
 //@access   public
 export const getEvent = async (req, res) => {
+  console.log("evevntGetCall==>", req.body);
   try {
     const { eventId } = req.body;
-    const event = await Event.findOne({ _id: eventId });
+    const event = eventsData.find((eventItem) => eventItem._id === eventId);
+
+    // await Event.findOne({ _id: eventId });
     if (!event) return res.status(404).json({ msg: "No Event Found " });
     res.status(200).json(event);
   } catch (error) {
@@ -151,7 +155,8 @@ export const getEvent = async (req, res) => {
 //@access   private {admin}
 export const getUnApprovedEvents = async (req, res) => {
   try {
-    const events = await Event.find({ isApproved: "false" });
+    const events = eventsData.filter((event) => event.isApproved === false);
+    // await Event.find({ isApproved: "false" });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -183,7 +188,8 @@ export const getCommitteeUnApprovedEvents = async (req, res) => {
 //@access   public
 export const getPublishedEvents = async (req, res) => {
   try {
-    const events = await Event.find({ isPublished: "true" });
+    const events = eventsData;
+    // await Event.find({ isPublished: "true" });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -195,7 +201,8 @@ export const getPublishedEvents = async (req, res) => {
 //@access   private {admin}
 export const getApprovedEvents = async (req, res) => {
   try {
-    const events = await Event.find({ isApproved: "true" });
+    const events = eventsData.filter((event) => event.isApproved === true);
+    // await Event.find({ isApproved: "true" });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -228,12 +235,20 @@ export const getCommitteeApprovedEvents = async (req, res) => {
 export const approveEvent = async (req, res) => {
   try {
     const { id } = req.body;
-    const filter = { _id: id };
-    const update = { isPublished: "true", isApproved: "true" };
-    const publishedEvent = await Event.findOneAndUpdate(filter, update, {
-      new: true,
-    });
-    res.status(201).json(publishedEvent);
+
+    // Find the event by ID in eventsData
+    const eventToUpdate = eventsData.find((event) => event._id === id);
+
+    // Check if the event with the given ID exists
+    if (!eventToUpdate) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // Update the event's properties
+    eventToUpdate.isPublished = true;
+    eventToUpdate.isApproved = true;
+
+    res.status(201).json(eventToUpdate);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -259,33 +274,69 @@ export const togglePublish = async (req, res) => {
 //@desc     delete an events
 //@route    POST /events/deleteEvent
 //@access   private {admin}
+// export const deleteEvent = async (req, res) => {
+//   try {
+//     const { eventId } = req.body;
+//     // Fetch the event before deleting it to access the file paths
+//     const event = await Event.findById(eventId);
+//     const deletedEvent = await Event.deleteOne({ _id: eventId });
+//     if (deletedEvent) {
+//       // Delete associated files from local storage
+//       if (event.bannerPath) {
+//         fs.unlinkSync(event.bannerPath);
+//       }
+//       if (event.orderPath) {
+//         fs.unlinkSync(event.orderPath);
+//       }
+//       if (event.reportPath) {
+//         fs.unlinkSync(event.reportPath);
+//       }
+//       if (event.photos) {
+//         event.photos.forEach((photo) => {
+//           fs.unlinkSync(photo.path);
+//         });
+//       }
+//       await User.deleteMany({ "event.id": eventId });
+//       res.status(201).json({ msg: "Deleted Successfully" });
+//     } else {
+//       res.status(500).json({ error: error.message });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 export const deleteEvent = async (req, res) => {
   try {
     const { eventId } = req.body;
     // Fetch the event before deleting it to access the file paths
-    const event = await Event.findById(eventId);
-    const deletedEvent = await Event.deleteOne({ _id: eventId });
-    if (deletedEvent) {
-      // Delete associated files from local storage
-      if (event.bannerPath) {
-        fs.unlinkSync(event.bannerPath);
-      }
-      if (event.orderPath) {
-        fs.unlinkSync(event.orderPath);
-      }
-      if (event.reportPath) {
-        fs.unlinkSync(event.reportPath);
-      }
-      if (event.photos) {
-        event.photos.forEach((photo) => {
-          fs.unlinkSync(photo.path);
-        });
-      }
-      await User.deleteMany({ "event.id": eventId });
-      res.status(201).json({ msg: "Deleted Successfully" });
-    } else {
-      res.status(500).json({ error: error.message });
+    const event = eventsData.find((event) => event._id === eventId);
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
     }
+
+    // Set associated file paths to empty strings to simulate deletion
+    event.bannerPath = "";
+    event.orderPath = "";
+    event.reportPath = "";
+
+    if (event.photos) {
+      event.photos.forEach((photo) => {
+        photo = "";
+      });
+    }
+
+    // In a real implementation, you would delete the files from local storage
+
+    // Remove the event from your dummy data
+    const eventIndex = eventsData.findIndex((event) => event._id === eventId);
+    if (eventIndex !== -1) {
+      eventsData.splice(eventIndex, 1);
+    }
+
+    // You can also remove any associated user data if needed
+
+    res.status(201).json({ msg: "Deleted Successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

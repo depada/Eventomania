@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import Admin from "../models/Admin.js";
 import Committee from "../models/Committee.js";
 import generateToken from "../utils/generateToken.js";
+import { adminData, committeeData, hashedPassword } from "../dummyData.js";
 
 //@desc     login user
 //@route    POST /admin/login
@@ -11,10 +12,13 @@ export const verifyAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     const lcEmail = email.toLowerCase();
-    const admin = await Admin.findOne({ email: lcEmail });
+
+    const admin = adminData.find((eventItem) => eventItem.email === lcEmail);
+    generateToken(res, admin._id);
+    //  await Admin.findOne({ email: lcEmail });
     if (!admin) return res.status(400).json({ msg: "Invalid Credentials. " });
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = admin.password === hashedPassword;
     if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials. " });
 
     // Return a success response without generating a token
@@ -51,44 +55,45 @@ export const addConvenor = async (req, res) => {
     const { name, email, password, committeeId, committeeName, role, mobile } =
       req.body;
     const lcEmail = email.toLowerCase();
-    const user = await Admin.findOne({ email: lcEmail });
-    if (user) {
-      res.status(409).json({ error: "Email already exits" });
+
+    // Check if the email already exists in the dummy data
+    const existingUser = adminData.find((admin) => admin.email === lcEmail);
+
+    if (existingUser) {
+      res.status(409).json({ error: "Email already exists" });
     } else {
+      // Hash the password
       const salt = await bcrypt.genSalt();
       const passwordHash = await bcrypt.hash(password, salt);
-      const existingConvenor = await Admin.findOne({
-        committeeId: committeeId,
-      });
+
+      // Check if a convenor with the same committeeId exists in the dummy data
+      const existingConvenor = adminData.find(
+        (user) => user.committeeId === committeeId
+      );
+
       if (existingConvenor) {
-        const filterAdmin = { committeeId: committeeId };
-        const updateAdmin = {
+        // Update the existing convenor
+        const updatedConvenor = {
+          ...existingConvenor,
           email: lcEmail,
           password: passwordHash,
           name,
           role,
-          committeeName,
-          committeeId,
           mobile,
         };
-        const updatedConvenor = await Admin.findOneAndUpdate(
-          filterAdmin,
-          updateAdmin,
-          { new: true }
+
+        // Find and update the committee in the dummy data
+        const updatedCommittee = committeeData.find(
+          (committee) => committee._id === committeeId
         );
-        const filterCommittee = { _id: committeeId };
-        const updateCommittee = {
-          convenorName: updatedConvenor.name,
-          convenorId: updatedConvenor._id,
-        };
-        const updatedCommittee = await Committee.findOneAndUpdate(
-          filterCommittee,
-          updateCommittee,
-          { new: true }
-        );
+        updatedCommittee.convenorName = name;
+        updatedCommittee.convenorId = updatedConvenor._id;
+
         res.status(201).json({ updatedConvenor, updatedCommittee });
       } else {
-        const newConvenor = new Admin({
+        // Create a new convenor
+        const newConvenor = {
+          _id: `convenor${Date.now()}`, // Generate a unique _id
           email: lcEmail,
           password: passwordHash,
           name,
@@ -96,34 +101,39 @@ export const addConvenor = async (req, res) => {
           committeeName,
           committeeId,
           mobile,
-        });
-        const savedConvenor = await newConvenor.save();
-        const filter = { _id: committeeId };
-        const update = {
-          convenorName: savedConvenor.name,
-          convenorId: savedConvenor._id,
         };
-        const updatedCommittee = await Committee.findOneAndUpdate(
-          filter,
-          update,
-          { new: true }
+
+        adminData.push(newConvenor);
+
+        // Find and update the committee in the dummy data
+        const updatedCommittee = committeeData.find(
+          (committee) => committee._id === committeeId
         );
-        res.status(201).json({ savedConvenor, updatedCommittee });
+        updatedCommittee.convenorName = name;
+        updatedCommittee.convenorId = newConvenor._id;
+
+        res.status(201).json({ savedConvenor: newConvenor, updatedCommittee });
       }
     }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
+// catch (err) {
+//   res.status(500).json({ error: err.message });
+// }
+// };
 
 //@desc     get list of convenors
 //@route    GET /admin/convenors
 //@access   private {admin}
 export const getConvenors = async (req, res) => {
   try {
-    const convenors = await Admin.find({ role: "convenor" }).select(
-      "-password"
-    );
+    // const convenors =
+    // await Admin.find({ role: "convenor" }).select(
+    //   "-password"
+    // );
+    const convenors = adminData.filter((admin) => admin.role === "convenor");
     res.status(200).json(convenors);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -174,13 +184,20 @@ export const addMember = async (req, res) => {
     } = req.body;
     const lcEmail = memberEmail.toLowerCase();
 
-    const user = await Admin.findOne({ email: lcEmail });
-    if (user) {
-      res.status(400).json({ msg: "Email already exits" });
+    // Check if the email already exists in the dummy data
+    const existingUser = adminData.find((admin) => admin.email === lcEmail);
+    console.log("existingUsrerrf==>", existingUser);
+
+    if (existingUser) {
+      res.status(400).json({ msg: "Email already exists" });
     } else {
+      // Hash the password
       const salt = await bcrypt.genSalt();
       const passwordHash = await bcrypt.hash(memberPassword, salt);
-      const newMember = new Admin({
+
+      // Create a new member
+      const newMember = {
+        _id: `member${Date.now()}`, // Generate a unique _id
         email: lcEmail,
         password: passwordHash,
         name: memberName,
@@ -188,21 +205,23 @@ export const addMember = async (req, res) => {
         committeeName,
         committeeId,
         mobile,
-      });
-      const savedMember = await newMember.save();
-      res.status(201).json({ savedMember });
+      };
+
+      adminData.push(newMember);
+
+      res.status(201).json({ savedMember: newMember });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 //@desc     get list of members
 //@route    GET /admin/members
 //@access   private {admin}
 export const getMembers = async (req, res) => {
   try {
-    const members = await Admin.find({ role: "member" }).select("-password");
+    const members = adminData.filter((admin) => admin.role === "member");
+    // await Admin.find({ role: "member" }).select("-password");
     res.status(200).json(members);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -258,12 +277,14 @@ export const changePassword = async (req, res) => {
     }
     const { currentPassword, newPassword, cNewPassword, userId } = req.body;
 
-    const user = await Admin.findOne({ _id: userId });
+    // Find the user by userId in the dummy data
+    const user = adminData.find((admin) => admin._id === userId);
+    console.log("userChnagePass==>", user);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const isMatch = user.password === currentPassword;
     if (!isMatch) {
       return res.status(400).json({ msg: "Current Password is Not Valid!" });
     }
@@ -272,15 +293,13 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ msg: "New Passwords do not match!" });
     }
 
+    // Hash the new password
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(newPassword, salt);
-    const filter = { _id: userId };
-    const update = {
-      password: passwordHash,
-    };
-    const updatedUser = await Admin.findOneAndUpdate(filter, update, {
-      new: true,
-    });
+
+    // Update the password in the dummy data
+    user.password = passwordHash;
+
     res.status(201).json({ msg: "Password Changed Successfully" });
   } catch (error) {
     res

@@ -1,5 +1,7 @@
 import { validationResult } from "express-validator";
 import Committee from "../models/Committee.js";
+import { v4 as uuidv4 } from "uuid";
+import { committeeData } from "../dummyData.js";
 
 //@desc     create a new committee
 //@route    POST /committee/addCommittee
@@ -10,10 +12,20 @@ export const addCommittee = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+
     const { name, description } = req.body;
-    const newCommittee = new Committee({ name, description });
-    const savedCommittee = await newCommittee.save();
-    res.status(201).json(savedCommittee);
+
+    // Push the new committee data to the dummy data array
+    const newCommittee = {
+      _id: uuidv4(), // Generate a new unique ID
+      name: name,
+      description: description,
+    };
+
+    committeeData.push(newCommittee);
+
+    // Optionally, you can return the newly added committee from the dummy data
+    res.status(201).json(newCommittee);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -26,9 +38,9 @@ export const getCommittees = async (req, res) => {
   console.log("getCommitte called"); // Log a message to confirm that the function is called.
 
   try {
-    const committees =
-      // console.log("committees==>", committees); // Log the committees to the console.
-      await Committee.find(); // Attempt to find and retrieve committees from the database.
+    const committees = committeeData;
+    console.log("committees==>", committees); // Log the committees to the console.
+    // await Committee.find(); // Attempt to find and retrieve committees from the database.
 
     res.status(200).json(committees); // Respond with a JSON containing the committees.
   } catch (error) {

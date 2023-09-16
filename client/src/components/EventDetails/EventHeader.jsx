@@ -10,19 +10,19 @@ const EventHeader = ({ name, banner, startDate, venue, organizedBy }) => {
   const theme = useTheme();
   const eventDetails = [
     {
-      icon: <TodayIcon color='secondary' />,
+      icon: <TodayIcon color="secondary" />,
       title: "Date",
       value: moment(new Date(startDate)).format("Do MMMM YYYY, h:mm A"),
       last: false,
     },
     {
-      icon: <LocationOnIcon color='secondary' />,
+      icon: <LocationOnIcon color="secondary" />,
       title: "Venue",
       value: venue,
       last: false,
     },
     {
-      icon: <Diversity1Icon color='secondary' />,
+      icon: <Diversity1Icon color="secondary" />,
       title: "Organizers",
       value: organizedBy,
       last: true,
@@ -32,22 +32,25 @@ const EventHeader = ({ name, banner, startDate, venue, organizedBy }) => {
   return (
     <>
       <img
-        src={`${process.env.REACT_APP_BASE_URL}assets/${banner}`}
-        alt='banner'
+        src={
+          // `${process.env.REACT_APP_BASE_URL}assets/${banner}`
+          banner
+        }
+        alt="banner"
         width={isNonMobile ? "90%" : "100%"}
       />
       <Typography
         mt={2}
         fontSize={isNonMobile ? "2rem" : "1.5rem"}
-        variant='h1'
-        fontWeight='bold'
+        variant="h1"
+        fontWeight="bold"
         width={isNonMobile ? "90%" : "100%"}
-        color='secondary'
+        color="secondary"
       >
         {name}
       </Typography>
       <Box
-        borderRadius='0.55rem'
+        borderRadius="0.55rem"
         width={isNonMobile ? "90%" : "100%"}
         mt={2}
         sx={{

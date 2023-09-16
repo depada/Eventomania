@@ -45,9 +45,12 @@ const EventCard = ({ event, isPast }) => {
         }}
       >
         <CardMedia
-          image={`${process.env.REACT_APP_BASE_URL}assets/${event.bannerName}`}
-          title='Event Banner'
-          crossOrigin='anonymous'
+          image={
+            event.bannerPath
+            // `${process.env.REACT_APP_BASE_URL}assets/${event.bannerName}`
+          }
+          title="Event Banner"
+          crossOrigin="anonymous"
           sx={{
             height: 150,
             padding: "1em 1em 0 1em",
@@ -55,19 +58,19 @@ const EventCard = ({ event, isPast }) => {
         />
         <CardContent>
           <Box
-            display='flex'
-            justifyContent='center'
-            alignItems='flex-start'
-            flexDirection='column'
-            p='0rem 0.5rem 0rem 0.5rem'
+            display="flex"
+            justifyContent="center"
+            alignItems="flex-start"
+            flexDirection="column"
+            p="0rem 0.5rem 0rem 0.5rem"
           >
             <Tooltip title={event.name}>
               <Typography
-                fontSize='1.1rem'
-                textDecoration='underline'
-                fontWeight='bold'
-                p='1rem 0rem 1rem 0rem'
-                width='90%'
+                fontSize="1.1rem"
+                textDecoration="underline"
+                fontWeight="bold"
+                p="1rem 0rem 1rem 0rem"
+                width="90%"
                 color={theme.palette.secondary.main}
                 sx={{
                   whiteSpace: "nowrap",
@@ -80,10 +83,10 @@ const EventCard = ({ event, isPast }) => {
               </Typography>
             </Tooltip>
             <Typography
-              fontSize='0.8rem'
-              textDecoration='underline'
+              fontSize="0.8rem"
+              textDecoration="underline"
               color={theme.palette.secondary}
-              paddingBottom='0.6rem'
+              paddingBottom="0.6rem"
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -91,13 +94,13 @@ const EventCard = ({ event, isPast }) => {
               }}
             >
               <span style={{ fontWeight: "bold" }}>
-                <EventIcon color='secondary' />{" "}
+                <EventIcon color="secondary" />{" "}
               </span>
               {moment(new Date(event.startDate)).format("Do MMM YYYY, h:mm A")}
             </Typography>
             <Typography
-              fontSize='0.8rem'
-              textDecoration='underline'
+              fontSize="0.8rem"
+              textDecoration="underline"
               color={theme.palette.secondary}
               sx={{
                 display: "flex",
@@ -106,30 +109,31 @@ const EventCard = ({ event, isPast }) => {
               }}
             >
               <span style={{ fontWeight: "bold" }}>
-                <LocationOnIcon color='secondary' />{" "}
+                <LocationOnIcon color="secondary" />{" "}
               </span>
               {event.venue}
             </Typography>
           </Box>
         </CardContent>
         <CardActions
-          display='flex'
+          display="flex"
           sx={{
             marginBottom: "0.5rem",
             justifyContent: "center",
           }}
         >
           <Button
-            name='event_btn'
-            variant='contained'
-            type='submit'
+            name="event_btn"
+            variant="contained"
+            type="submit"
             sx={{
               fontWeight: "bold",
             }}
-            size='large'
-            color='secondary'
+            size="large"
+            color="secondary"
             onClick={() => {
-              navigate(`/EventDetails/${event._id}`);
+              console.log("btncl");
+              navigate(`/events/${event._id}`);
             }}
           >
             {!isPast ? "Register Now" : "View Details"}

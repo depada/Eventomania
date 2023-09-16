@@ -19,7 +19,7 @@ import EventHeader from "./EventDetails/EventHeader";
 import EventDescription from "./EventDetails/EventDescription";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction='up' ref={ref} {...props} />;
+  return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const EventDialog = ({
@@ -54,25 +54,25 @@ const EventDialog = ({
           <Toolbar>
             <Typography
               sx={{ ml: 2, flex: 1, fontWeight: "bold" }}
-              color='secondary'
-              variant='h3'
-              component='div'
+              color="secondary"
+              variant="h3"
+              component="div"
             >
               Event Details
             </Typography>
             <IconButton
-              edge='end'
-              color='inherit'
+              edge="end"
+              color="inherit"
               onClick={handleCloseDialog}
-              aria-label='close'
+              aria-label="close"
             >
               <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
         <Box
-          padding='1rem'
-          width='100%'
+          padding="1rem"
+          width="100%"
           sx={{
             backgroundColor: theme.palette.background.default,
             margin: "auto",
@@ -83,15 +83,15 @@ const EventDialog = ({
         >
           {params && (
             <Grid
-              width='100%'
-              margin='auto'
+              width="100%"
+              margin="auto"
               container
               spacing={isNonMobile && 2}
             >
               <Grid item xs={12} sm={12} md={7} lg={7}>
                 <EventHeader
                   name={params.row.name}
-                  banner={params.row.bannerName}
+                  banner={params.row.bannerPath}
                   startDate={params.row.startDate}
                   endDate={params.row.endDate}
                   venue={params.row.venue}
@@ -106,18 +106,18 @@ const EventDialog = ({
                   <Link
                     style={{ textDecoration: "none" }}
                     to={`${process.env.REACT_APP_BASE_URL}assets/${params.row.orderName}`}
-                    target='_blank'
-                    rel='noreferrer'
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     <Button
-                      name='order_btn'
-                      variant='contained'
+                      name="order_btn"
+                      variant="contained"
                       sx={{
                         marginTop: "1.5rem",
                         fontWeight: "bold",
                       }}
-                      size='large'
-                      color='secondary'
+                      size="large"
+                      color="secondary"
                     >
                       View Order
                     </Button>

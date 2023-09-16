@@ -1,5 +1,6 @@
 import { validationResult } from "express-validator";
 import User from "../models/User.js";
+import { userData } from "../dummyData.js";
 
 //@desc     register student for an event
 //@route    POST /user/registerStudent
@@ -110,7 +111,8 @@ export const registerFaculty = async (req, res) => {
 //@access   private {admin, convenor, member}
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = userData;
+    // await User.find();
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });

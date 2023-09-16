@@ -2,15 +2,21 @@ import moment from "moment";
 import Admin from "../models/Admin.js";
 import Committee from "../models/Committee.js";
 import Event from "../models/Event.js";
+import { adminData, committeeData, eventsData } from "../dummyData.js";
 
 //@desc     get admin dashboard stats
 //@route    GET /dashboard/adminDashboardStats
 //@access   private {admin}
 export const adminDashboardStats = async (req, res) => {
   try {
+    console.log("adminDashboardSStatsCalled");
     const currentYear = moment().year(); // Get the current year
     const currentMonth = moment().month(); // Get the current month (0-11)
-    const approvedEvents = await Event.find({ isApproved: true }).exec();
+    const approvedEvents = eventsData.filter(
+      (event) => event.isApproved === true
+    );
+
+    // await Event.find({ isApproved: true }).exec();
 
     //EVENTS PER COMMITTEE
     const eventData = {};
@@ -70,7 +76,8 @@ export const adminDashboardStats = async (req, res) => {
       y: eventsCountByMonth[month] || 0,
     }));
     //END EVENTS PER MONTH
-    const events = await Event.find().exec();
+    const events = eventsData;
+    // await Event.find().exec();
 
     const approvedEventsCount = events.filter(
       (event) =>
@@ -91,8 +98,10 @@ export const adminDashboardStats = async (req, res) => {
         moment(new Date(event.startDate)).isSame(moment())
     );
 
-    const adminsCount = await Admin.countDocuments().exec();
-    const committeesCount = await Committee.countDocuments().exec();
+    const adminsCount = adminData.length;
+    // await Admin.countDocuments().exec();
+    const committeesCount = committeeData.length;
+    // await Committee.countDocuments().exec();
 
     res.status(200).json({
       upcomingEvents,
@@ -105,6 +114,7 @@ export const adminDashboardStats = async (req, res) => {
       committeesCount,
     });
   } catch (error) {
+    console.log("error==>", error);
     res
       .status(500)
       .json({ error: "An error occurred while fetching dashboard stats." });
@@ -126,10 +136,14 @@ export const committeeDashboardStats = async (req, res) => {
       return res.status(404).json({ error: "Committee not found" });
     }
 
-    const approvedEvents = await Event.find({
-      isApproved: true,
-      "committee.id": committeeId,
-    }).exec();
+    const approvedEvents = eventsData.filter(
+      (event) => event.isApproved === true
+    );
+
+    // await Event.find({
+    //   isApproved: true,
+    //   "committee.id": committeeId,
+    // }).exec();
 
     const upcomingEvents = approvedEvents.filter(
       (event) =>
@@ -197,7 +211,10 @@ export const committeeDashboardStats = async (req, res) => {
     }));
     //END OF EVENTS PER MONTH OF COMMITTEE
 
-    const events = await Event.find({ "committee.id": committeeId }).exec();
+    const events = eventsData.filter((event) =>
+      event.committee.some((committee) => committee.id === committeeId)
+    );
+    // await Event.find({ "committee.id": committeeId }).exec();
 
     const approvedEventsCount = events.filter(
       (event) =>
@@ -215,9 +232,10 @@ export const committeeDashboardStats = async (req, res) => {
       (event) => event.isApproved && event.status === false
     ).length;
 
-    const adminsCount = await Admin.countDocuments({
-      committeeId: committeeId,
-    }).exec();
+    const adminsCount = adminData.length;
+    //  await Admin.countDocuments({
+    //   committeeId: committeeId,
+    // }).exec();
 
     res.status(200).json({
       approvedEventsCount,
@@ -230,6 +248,7 @@ export const committeeDashboardStats = async (req, res) => {
       adminsCount,
     });
   } catch (error) {
+    console.log("error==>", error);
     res.status(500).json({
       error:
         "An error occurred while fetching dashboard stats for the committee.",

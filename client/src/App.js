@@ -65,7 +65,7 @@ function App() {
                 }
               />
               <Route
-                path="/EventDetails/:eventId"
+                path="/events/:eventId"
                 element={
                   <Suspense fallback={<div></div>}>
                     <EventDetails />

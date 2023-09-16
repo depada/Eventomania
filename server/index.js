@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
+// const { MongoClient, ServerApiVersion } = require("mongodb");
+import { MongoClient, ServerApiVersion } from "mongodb";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -138,16 +140,27 @@ app.use("/admin", adminRoutes);
 app.use("/events", eventRoutes);
 app.use("/user", userRoutes);
 app.use("/dashboard", dashboardRoutes);
-// MONGOOSE Setup
 
 const PORT = process.env.PORT || 9000;
-mongoose.set("strictQuery", true);
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
+const uri =
+  "mongodb+srv://admin:admin@cluster0.zijojq0.mongodb.net/?retryWrites=true&w=majority";
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+async function run() {
+  try {
+    await client.connect();
+    await client.db("eventomania").command({ ping: 1 });
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
-  })
-  .catch((error) => console.log(`${error} did not connect`));
+  } catch (error) {
+    console.error(`MongoDB connection error: ${error}`);
+  } finally {
+    await client.close();
+  }
+}
+run().catch(console.dir);

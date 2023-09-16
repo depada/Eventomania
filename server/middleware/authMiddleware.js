@@ -5,6 +5,7 @@ export const checkRole = (roles) => {
   return async (req, res, next) => {
     let token;
     token = req.cookies.jwt;
+    console.log("token==>", token);
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

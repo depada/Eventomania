@@ -16,6 +16,7 @@ router.post(
   addCommittee
 );
 router.get("/getCommittees", getCommittees);
+
 router.post("/deleteCommittee", checkRole(["admin"]), deleteCommittee);
 
 export default router;

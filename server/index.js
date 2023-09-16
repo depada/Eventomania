@@ -1,7 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-// import mongoose from "mongoose";
-// const { MongoClient, ServerApiVersion } = require("mongodb");
 import { MongoClient, ServerApiVersion } from "mongodb";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -30,11 +28,7 @@ import { uploadReport } from "./controllers/eventController.js";
 import { checkRole } from "./middleware/authMiddleware.js";
 import { eventValidationRules } from "./middleware/validationMiddleware.js";
 
-// CONFIGURATION
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-//middleware
+// Create Express app
 dotenv.config();
 const app = express();
 app.use(cookieParser());
@@ -48,7 +42,11 @@ app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
-//set directory of where we store files
+// Get the directory name using import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Set the directory where we store files
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 // FILE STORAGE CONFIGURATIONS
@@ -70,7 +68,8 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-//COMPRESS PHOTOS BEFORE UPLOADING
+
+// COMPRESS PHOTOS BEFORE UPLOADING
 const compressAndSavePhotos = async (req, res, next) => {
   try {
     const compressedPhotos = await Promise.all(
@@ -109,6 +108,7 @@ const compressAndSavePhotos = async (req, res, next) => {
     res.status(500).json({ message: "Error compressing photos." });
   }
 };
+
 // ROUTES WITH FILE UPLOADS
 app.post(
   "/event/createEvent",
@@ -120,12 +120,14 @@ app.post(
   eventValidationRules,
   createEvent
 );
+
 app.post(
   "/event/uploadReport",
   checkRole(["convenor", "member"]),
   upload.single("report"),
   uploadReport
 );
+
 app.post(
   "/event/uploadPhotos",
   checkRole(["convenor", "member"]),
@@ -142,6 +144,8 @@ app.use("/user", userRoutes);
 app.use("/dashboard", dashboardRoutes);
 
 const PORT = process.env.PORT || 9000;
+
+// MongoDB connection
 const uri =
   "mongodb+srv://admin:admin@cluster0.zijojq0.mongodb.net/?retryWrites=true&w=majority";
 
@@ -152,15 +156,22 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
 async function run() {
   try {
+    // Connect to MongoDB
     await client.connect();
     await client.db("eventomania").command({ ping: 1 });
+
+    // Create dummy data
+
+    // Start the Express server
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
   } catch (error) {
-    console.error(`MongoDB connection error: ${error}`);
+    console.error("MongoDB operation failed:", error);
   } finally {
     await client.close();
   }
 }
+
 run().catch(console.dir);

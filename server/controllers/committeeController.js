@@ -23,11 +23,18 @@ export const addCommittee = async (req, res) => {
 //@route    GET /committee/getCommittees
 //@access   public
 export const getCommittees = async (req, res) => {
+  console.log("getCommitte called"); // Log a message to confirm that the function is called.
+
   try {
-    const committees = await Committee.find();
-    res.status(200).json(committees);
+    const committees =
+      // console.log("committees==>", committees); // Log the committees to the console.
+      await Committee.find(); // Attempt to find and retrieve committees from the database.
+
+    res.status(200).json(committees); // Respond with a JSON containing the committees.
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Handle errors if any occur.
+    res.status(500).json({ error: error.message }); // Respond with an error message.
+    console.log("Error while fetching committees:", error); // Log the error for debugging.
   }
 };
 

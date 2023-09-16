@@ -24,23 +24,23 @@ function App() {
   const isMember = isAuth && user.role === "member";
   const isConvenor = isAuth && user.role === "convenor";
   return (
-    <div className='app'>
+    <div className="app">
       <ToastContainer
-        position='top-right'
+        position="top-right"
         autoClose={1500}
         hideProgressBar={false}
         closeOnClick={true}
         pauseOnHover={false}
         draggable={true}
         progress={undefined}
-        theme='colored'
+        theme="colored"
       />
 
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Routes>
-            <Route path='*' element={<Navigate to='/' />} />
+            <Route path="*" element={<Navigate to="/" />} />
             <Route
               element={
                 <Suspense>
@@ -49,7 +49,7 @@ function App() {
               }
             >
               <Route
-                path='/'
+                path="/"
                 element={
                   <Suspense>
                     <Home />
@@ -57,7 +57,7 @@ function App() {
                 }
               />
               <Route
-                path='/About'
+                path="/About"
                 element={
                   <Suspense fallback={<div></div>}>
                     <About />
@@ -65,7 +65,7 @@ function App() {
                 }
               />
               <Route
-                path='/EventDetails/:eventId'
+                path="/EventDetails/:eventId"
                 element={
                   <Suspense fallback={<div></div>}>
                     <EventDetails />
@@ -73,14 +73,14 @@ function App() {
                 }
               />
               <Route
-                path='/Login'
+                path="/Login"
                 element={
                   !isAuth ? (
                     <Suspense fallback={<div></div>}>
                       <Login />
                     </Suspense>
                   ) : (
-                    <Navigate to='/Dashboard' />
+                    <Navigate to="/Dashboard" />
                   )
                 }
               />

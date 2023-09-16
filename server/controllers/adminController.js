@@ -16,10 +16,9 @@ export const verifyAdmin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials. " });
-    const user = await Admin.findOne({ email: lcEmail }).select("-password");
-    console.log(user._id);
-    generateToken(res, user._id);
-    res.status(201).json({ user });
+
+    // Return a success response without generating a token
+    res.status(201).json({ user: admin });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
